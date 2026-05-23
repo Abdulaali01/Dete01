@@ -102,6 +102,7 @@ display:flex;
 flex-direction:column;
 gap:10px;
 box-shadow:0 3px 10px rgba(0,0,0,.15);
+z-index:999;
 }
 
 .toolBtn{
@@ -111,10 +112,6 @@ border:none;
 border-radius:12px;
 font-size:24px;
 cursor:pointer;
-background:#f3f3f3;
-}
-
-.toolBtn:hover{
 background:#673ab7;
 color:#fff;
 }
@@ -212,10 +209,9 @@ font-size:18px;
 @media(max-width:900px){
 
 .toolbar{
-position:static;
-flex-direction:row;
-margin-bottom:15px;
-justify-content:center;
+position:fixed;
+left:10px;
+top:100px;
 }
 
 }
@@ -245,40 +241,7 @@ onclick="addField()">
 نظام إدخال البيانات
 </div>
 
-<div id="questions">
-
-<div class="card">
-
-<label class="label">
-اسم الموقع
-</label>
-
-<input type="text"
-id="siteName"
-placeholder="اكتب اسم الموقع">
-
-</div>
-
-<div class="card">
-
-<label class="label">
-رابط الموقع من الخريطة
-</label>
-
-<input type="text"
-id="siteLink"
-readonly>
-
-<button class="copyBtn"
-onclick="copyLink()">
-
-نسخ رابط الموقع الحالي
-
-</button>
-
-</div>
-
-</div>
+<div id="questions"></div>
 
 <button class="btn"
 onclick="sendData()">
@@ -302,47 +265,6 @@ onclick="requestAdminAccess()">
 
 const ADMIN_PASSWORD =
 "481481";
-
-function requestAdminAccess(){
-
-let pass =
-prompt("أدخل كلمة المرور");
-
-if(pass === ADMIN_PASSWORD){
-
-openStoragePage();
-
-}else{
-
-alert("كلمة المرور غير صحيحة");
-
-}
-
-}
-
-navigator.geolocation.getCurrentPosition(function(pos){
-
-let lat = pos.coords.latitude;
-let lng = pos.coords.longitude;
-
-document.getElementById("siteLink").value =
-"https://maps.google.com/?q="
-+ lat + "," + lng;
-
-});
-
-function copyLink(){
-
-let input =
-document.getElementById("siteLink");
-
-input.select();
-
-document.execCommand("copy");
-
-alert("تم نسخ الرابط");
-
-}
 
 let db;
 
@@ -373,14 +295,132 @@ db = e.target.result;
 
 };
 
-addField("رقم البلاغ");
+// أول مجموعة
+
+createGroup();
+
+function requestAdminAccess(){
+
+let pass =
+prompt("أدخل كلمة المرور");
+
+if(pass === ADMIN_PASSWORD){
+
+openStoragePage();
+
+}else{
+
+alert("كلمة المرور غير صحيحة");
+
+}
+
+}
+
+function createGroup(){
+
+let questions =
+document.getElementById("questions");
+
+// اسم الموقع
+
+let siteCard =
+document.createElement("div");
+
+siteCard.className = "card";
+
+siteCard.innerHTML = `
+
+<label class="label">
+اسم الموقع
+</label>
+
+<input type="text"
+class="groupSiteName"
+placeholder="اكتب اسم الموقع">
+
+`;
+
+questions.appendChild(siteCard);
+
+// رابط الموقع
+
+let linkCard =
+document.createElement("div");
+
+linkCard.className = "card";
+
+linkCard.innerHTML = `
+
+<label class="label">
+رابط الموقع من الخريطة
+</label>
+
+<input type="text"
+class="groupSiteLink"
+readonly>
+
+<button class="copyBtn"
+onclick="copyCurrentLocation(this)">
+
+نسخ رابط الموقع الحالي
+
+</button>
+
+`;
+
+questions.appendChild(linkCard);
+
+}
+
+function copyCurrentLocation(btn){
+
+navigator.geolocation.getCurrentPosition(function(pos){
+
+let lat = pos.coords.latitude;
+let lng = pos.coords.longitude;
+
+let link =
+"https://maps.google.com/?q="
++ lat + "," + lng;
+
+btn.parentElement
+.querySelector("input")
+.value = link;
+
+navigator.clipboard.writeText(link);
+
+alert("تم نسخ الرابط");
+
+});
+
+}
 
 function addField(defaultTitle = ""){
+
+let questions =
+document.getElementById("questions");
+
+let currentFields =
+questions.querySelectorAll(".dynamicField");
+
+// كل مجموعة = 5
+// اسم الموقع + الرابط + 3 حقول
+
+if(
+currentFields.length > 0
+&&
+currentFields.length % 3 == 0
+){
+
+createGroup();
+
+}
 
 let div =
 document.createElement("div");
 
-div.className = "card";
+div.className =
+"card dynamicField";
 
 div.innerHTML = `
 
@@ -408,8 +448,7 @@ class="addImgBtn">
 
 `;
 
-document.getElementById("questions")
-.appendChild(div);
+questions.appendChild(div);
 
 let addBtn =
 div.querySelector(".addImgBtn");
@@ -468,20 +507,38 @@ reader.readAsDataURL(file);
 
 }
 
+addField("رقم البلاغ");
+
 function sendData(){
 
 let row = {};
 
-row["اسم الموقع"] =
-document.getElementById("siteName").value;
+let siteNames =
+document.querySelectorAll(".groupSiteName");
 
-row["رابط الموقع"] =
-document.getElementById("siteLink").value;
+let siteLinks =
+document.querySelectorAll(".groupSiteLink");
+
+siteNames.forEach((s,i)=>{
+
+row[
+"اسم الموقع " + (i+1)
+] = s.value;
+
+});
+
+siteLinks.forEach((s,i)=>{
+
+row[
+"رابط الموقع " + (i+1)
+] = s.value;
+
+});
 
 let cards =
-document.querySelectorAll(".card");
+document.querySelectorAll(".dynamicField");
 
-cards.forEach((card)=>{
+cards.forEach((card,index)=>{
 
 let name =
 card.querySelector(".fieldName");
@@ -497,14 +554,14 @@ value.value;
 let previews =
 card.querySelectorAll(".preview");
 
-previews.forEach((img,index)=>{
+previews.forEach((img,imgIndex)=>{
 
 if(img.src){
 
 row[
 name.value +
 " صورة " +
-(index+1)
+(imgIndex+1)
 
 ] = img.src;
 
@@ -649,7 +706,7 @@ return;
 
 }
 
-let allHeaders = [];
+let headers = [];
 
 data.forEach(r=>{
 
@@ -657,9 +714,9 @@ Object.keys(r).forEach(k=>{
 
 if(k != "id"){
 
-if(!allHeaders.includes(k)){
+if(!headers.includes(k)){
 
-allHeaders.push(k);
+headers.push(k);
 
 }
 
@@ -671,10 +728,10 @@ allHeaders.push(k);
 
 let groups = [];
 
-for(let i=0;i<allHeaders.length;i+=5){
+for(let i=0;i<headers.length;i+=5){
 
 groups.push(
-allHeaders.slice(i,i+5)
+headers.slice(i,i+5)
 );
 
 }
@@ -919,8 +976,7 @@ val.startsWith("data:image")
 )
 ){
 
-text +=
-val + "\n";
+text += val + "\n";
 
 }
 
