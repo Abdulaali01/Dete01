@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>نظام إدخال البيانات</title>
+<title>نظام المواقع والبلاغات</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -15,7 +15,7 @@
 
 *{
 box-sizing:border-box;
-font-family:Tahoma;
+font-family:tahoma;
 }
 
 body{
@@ -25,7 +25,7 @@ padding:20px;
 }
 
 .container{
-max-width:950px;
+max-width:1100px;
 margin:auto;
 }
 
@@ -44,6 +44,7 @@ border-radius:0 0 16px 16px;
 .title{
 font-size:32px;
 margin-bottom:20px;
+font-weight:bold;
 }
 
 .card{
@@ -52,6 +53,16 @@ border:1px solid #ddd;
 border-radius:14px;
 padding:20px;
 margin-bottom:18px;
+}
+
+.groupTitle{
+background:#673ab7;
+color:#fff;
+padding:14px;
+border-radius:12px;
+margin:20px 0 10px;
+font-size:20px;
+font-weight:bold;
 }
 
 .label{
@@ -77,43 +88,46 @@ border-bottom:2px solid #673ab7;
 border:2px dashed #673ab7;
 padding:15px;
 border-radius:12px;
-text-align:center;
 background:#faf7ff;
 margin-top:10px;
 }
 
-.preview{
-width:120px;
-height:120px;
-object-fit:cover;
+.previewGrid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
 margin-top:10px;
-border-radius:12px;
-display:block;
+}
+
+.previewItem{
+position:relative;
+}
+
+.preview{
+width:100%;
+height:110px;
+object-fit:cover;
+border-radius:10px;
+border:1px solid #ccc;
 }
 
 .toolbar{
 position:fixed;
 left:20px;
 top:120px;
-background:#fff;
-border-radius:14px;
-padding:10px;
-display:flex;
-flex-direction:column;
-gap:10px;
-box-shadow:0 3px 10px rgba(0,0,0,.15);
 z-index:999;
 }
 
 .toolBtn{
-width:55px;
-height:55px;
+width:60px;
+height:60px;
 border:none;
-border-radius:12px;
-font-size:24px;
-cursor:pointer;
+border-radius:14px;
+font-size:30px;
 background:#673ab7;
 color:#fff;
+cursor:pointer;
+box-shadow:0 4px 12px rgba(0,0,0,.2);
 }
 
 .btn{
@@ -128,18 +142,18 @@ cursor:pointer;
 margin-top:10px;
 }
 
-.addImgBtn{
-background:#673ab7;
+.copyBtn{
+background:#1a73e8;
 color:#fff;
 border:none;
 border-radius:10px;
 padding:10px;
-cursor:pointer;
 margin-top:10px;
+cursor:pointer;
 }
 
-.copyBtn{
-background:#1a73e8;
+.addImgBtn{
+background:#673ab7;
 color:#fff;
 border:none;
 border-radius:10px;
@@ -160,9 +174,51 @@ margin-top:10px;
 cursor:pointer;
 }
 
+table{
+width:100%;
+border-collapse:collapse;
+background:#fff;
+margin-bottom:25px;
+}
+
+th,td{
+border:1px solid #ccc;
+padding:10px;
+text-align:center;
+vertical-align:top;
+}
+
+th{
+background:#673ab7;
+color:#fff;
+}
+
+.imageCell{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:6px;
+}
+
+.imageCell img{
+width:100%;
+height:90px;
+object-fit:cover;
+border-radius:10px;
+border:1px solid #ccc;
+}
+
+.searchBox{
+width:100%;
+padding:14px;
+margin-bottom:20px;
+border-radius:10px;
+border:1px solid #ccc;
+font-size:18px;
+}
+
 .progressBox{
 width:100%;
-height:28px;
+height:26px;
 background:#ddd;
 border-radius:20px;
 overflow:hidden;
@@ -175,45 +231,8 @@ width:0%;
 background:#673ab7;
 color:#fff;
 text-align:center;
-line-height:28px;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-background:#fff;
-margin-bottom:25px;
-}
-
-th,td{
-border:1px solid #ccc;
-padding:10px;
-text-align:center;
-vertical-align:middle;
-}
-
-th{
-background:#673ab7;
-color:#fff;
-}
-
-.searchBox{
-width:100%;
-padding:14px;
-margin-bottom:20px;
-border-radius:10px;
-border:1px solid #ccc;
-font-size:18px;
-}
-
-@media(max-width:900px){
-
-.toolbar{
-position:fixed;
-left:10px;
-top:100px;
-}
-
+line-height:26px;
+font-size:14px;
 }
 
 </style>
@@ -222,23 +241,25 @@ top:100px;
 
 <body>
 
-<div class="container">
-
 <div class="toolbar">
 
 <button class="toolBtn"
 onclick="addField()">
+
 +
+
 </button>
 
 </div>
+
+<div class="container">
 
 <div class="top"></div>
 
 <div class="form">
 
 <div class="title">
-نظام إدخال البيانات
+نظام المواقع والبلاغات
 </div>
 
 <div id="questions"></div>
@@ -251,7 +272,7 @@ onclick="sendData()">
 </button>
 
 <button class="adminBtn"
-onclick="requestAdminAccess()">
+onclick="openAdmin()">
 
 لوحة الإدارة
 
@@ -263,13 +284,12 @@ onclick="requestAdminAccess()">
 
 <script>
 
-const ADMIN_PASSWORD =
-"481481";
+const ADMIN_PASSWORD = "481481";
 
 let db;
 
 let request =
-indexedDB.open("DataSystemDB",1);
+indexedDB.open("SITE_DB",1);
 
 request.onupgradeneeded = function(e){
 
@@ -297,80 +317,63 @@ db = e.target.result;
 
 createGroup();
 
-function requestAdminAccess(){
-
-let pass =
-prompt("أدخل كلمة المرور");
-
-if(pass === ADMIN_PASSWORD){
-
-openStoragePage();
-
-}else{
-
-alert("كلمة المرور غير صحيحة");
-
-}
-
-}
-
 function createGroup(){
 
-let questions =
+let q =
 document.getElementById("questions");
 
-// اسم الموقع
+let count =
+document.querySelectorAll(".groupBlock").length + 1;
 
-let siteCard =
+let wrap =
 document.createElement("div");
 
-siteCard.className = "card groupCard";
+wrap.className = "groupBlock";
 
-siteCard.innerHTML = `
+wrap.innerHTML = `
+
+<div class="groupTitle">
+الموقع ${count}
+</div>
+
+<div class="card">
 
 <label class="label">
 اسم الموقع
 </label>
 
 <input type="text"
-class="groupSiteName"
+class="siteName"
 placeholder="اكتب اسم الموقع">
 
-`;
+</div>
 
-questions.appendChild(siteCard);
-
-// رابط الموقع
-
-let linkCard =
-document.createElement("div");
-
-linkCard.className = "card groupCard";
-
-linkCard.innerHTML = `
+<div class="card">
 
 <label class="label">
 رابط الموقع من الخريطة
 </label>
 
 <input type="text"
-class="groupSiteLink"
+class="siteLink"
 readonly>
 
 <button class="copyBtn"
-onclick="copyCurrentLocation(this)">
+onclick="copyLocation(this)">
 
 نسخ رابط الموقع الحالي
 
 </button>
 
+</div>
+
 `;
 
-questions.appendChild(linkCard);
+q.appendChild(wrap);
 
 }
 
-function copyCurrentLocation(btn){
+function copyLocation(btn){
 
 navigator.geolocation.getCurrentPosition(function(pos){
 
@@ -382,7 +385,7 @@ let link =
 + lat + "," + lng;
 
 btn.parentElement
-.querySelector("input")
+.querySelector(".siteLink")
 .value = link;
 
 navigator.clipboard.writeText(link);
@@ -393,41 +396,43 @@ alert("تم نسخ الرابط");
 
 }
 
-function addField(defaultTitle = ""){
+function addField(){
 
-let questions =
-document.getElementById("questions");
+let groups =
+document.querySelectorAll(".groupBlock");
+
+let lastGroup =
+groups[groups.length-1];
 
 let currentFields =
-questions.querySelectorAll(".dynamicField");
+lastGroup.querySelectorAll(".dynamicField");
 
-// كل مجموعة:
-// اسم الموقع
-// الرابط
-// 3 حقول
+// كل موقع = 5 أعمدة
+// اسم الموقع + الرابط + 3 حقول
 
-if(
-currentFields.length > 0
-&&
-currentFields.length % 3 == 0
-){
+if(currentFields.length >= 3){
 
 createGroup();
 
+groups =
+document.querySelectorAll(".groupBlock");
+
+lastGroup =
+groups[groups.length-1];
+
 }
 
-let div =
+let field =
 document.createElement("div");
 
-div.className =
+field.className =
 "card dynamicField";
 
-div.innerHTML = `
+field.innerHTML = `
 
 <input type="text"
 class="fieldName"
-placeholder="اكتب اسم العمود"
-value="${defaultTitle}">
+placeholder="اكتب اسم العمود">
 
 <br><br>
 
@@ -435,55 +440,63 @@ value="${defaultTitle}">
 class="fieldValue"
 placeholder="اكتب القيمة">
 
-<br><br>
-
-<button type="button"
+<button
+type="button"
 class="addImgBtn">
 
 + إضافة صور
 
 </button>
 
-<div class="imagesContainer"></div>
+<div class="previewGrid"></div>
 
 `;
 
-questions.appendChild(div);
+lastGroup.appendChild(field);
 
-let addBtn =
-div.querySelector(".addImgBtn");
+let btn =
+field.querySelector(".addImgBtn");
 
-let container =
-div.querySelector(".imagesContainer");
+btn.onclick = function(){
 
-addBtn.onclick = function(){
+let grid =
+field.querySelector(".previewGrid");
 
-let box =
+if(
+grid.querySelectorAll(".previewItem")
+.length >= 4
+){
+
+alert("الحد الأقصى 4 صور");
+
+return;
+
+}
+
+let item =
 document.createElement("div");
 
-box.className = "uploadBox";
+item.className = "previewItem";
 
-box.innerHTML = `
+item.innerHTML = `
 
 <input type="file"
-class="extraImage"
-accept="image/*">
-
-<br><br>
+accept="image/*"
+class="imgInput">
 
 <img class="preview">
 
 `;
 
-container.appendChild(box);
+grid.appendChild(item);
 
-let imgInput =
-box.querySelector(".extraImage");
+let input =
+item.querySelector(".imgInput");
 
-let preview =
-box.querySelector(".preview");
+let img =
+item.querySelector(".preview");
 
-imgInput.addEventListener("change",function(e){
+input.onchange = function(e){
 
 let file = e.target.files[0];
 
@@ -494,119 +507,25 @@ new FileReader();
 
 reader.onload = function(ev){
 
-preview.src =
+img.src =
 ev.target.result;
 
-}
+};
 
 reader.readAsDataURL(file);
 
-});
+};
+
+};
 
 }
 
-}
-
-addField("رقم البلاغ");
+addField();
 
 function sendData(){
 
-let rows = [];
-
-let questions =
-document.getElementById("questions");
-
-let allCards =
-questions.children;
-
-let currentRow = {};
-
-for(let i=0;i<allCards.length;i++){
-
-let card = allCards[i];
-
-// اسم الموقع
-
-let siteName =
-card.querySelector(".groupSiteName");
-
-if(siteName){
-
-if(Object.keys(currentRow).length){
-
-rows.push(currentRow);
-
-}
-
-currentRow = {};
-
-currentRow["اسم الموقع"] =
-siteName.value;
-
-continue;
-
-}
-
-// رابط الموقع
-
-let siteLink =
-card.querySelector(".groupSiteLink");
-
-if(siteLink){
-
-currentRow["رابط الموقع"] =
-siteLink.value;
-
-continue;
-
-}
-
-// الحقول
-
-if(card.classList.contains("dynamicField")){
-
-let name =
-card.querySelector(".fieldName");
-
-let value =
-card.querySelector(".fieldValue");
-
-if(name && value){
-
-currentRow[name.value] =
-value.value;
-
-let previews =
-card.querySelectorAll(".preview");
-
-previews.forEach((img,index)=>{
-
-if(img.src){
-
-currentRow[
-name.value +
-" صورة " +
-(index+1)
-
-] = img.src;
-
-}
-
-});
-
-}
-
-}
-
-}
-
-// آخر صف
-
-if(Object.keys(currentRow).length){
-
-rows.push(currentRow);
-
-}
+let groups =
+document.querySelectorAll(".groupBlock");
 
 let tx =
 db.transaction(
@@ -617,29 +536,74 @@ db.transaction(
 let store =
 tx.objectStore("records");
 
-rows.forEach(r=>{
+groups.forEach(group=>{
 
-store.add(r);
+let row = {};
+
+row["اسم الموقع"] =
+group.querySelector(".siteName").value;
+
+row["رابط الموقع"] =
+group.querySelector(".siteLink").value;
+
+let fields =
+group.querySelectorAll(".dynamicField");
+
+fields.forEach(field=>{
+
+let name =
+field.querySelector(".fieldName").value;
+
+let value =
+field.querySelector(".fieldValue").value;
+
+row[name] = value;
+
+let previews =
+field.querySelectorAll(".preview");
+
+previews.forEach((img,i)=>{
+
+if(img.src){
+
+row[
+name + " صورة " + (i+1)
+] = img.src;
+
+}
+
+});
+
+});
+
+store.add(row);
 
 });
 
 tx.oncomplete = function(){
 
-alert("تم إرسال البيانات");
+alert("تم حفظ البيانات");
+
+};
 
 }
 
-}
+function openAdmin(){
 
-function openStoragePage(){
+let pass =
+prompt("أدخل كلمة المرور");
+
+if(pass !== ADMIN_PASSWORD){
+
+alert("كلمة المرور خطأ");
+
+return;
+
+}
 
 document.body.innerHTML = `
 
-<div style="
-padding:20px;
-background:#f5f5f5;
-min-height:100vh;
-">
+<div style="padding:20px">
 
 <h2>
 البيانات المستلمة
@@ -647,43 +611,17 @@ min-height:100vh;
 
 <button
 onclick="exportExcel()"
-style="
-background:#1a73e8;
-color:#fff;
-border:none;
-padding:14px;
-border-radius:10px;
-width:100%;
-font-size:18px;
-margin-bottom:10px;
-cursor:pointer;
-">
+class="btn"
+style="background:#1a73e8">
 
 تصدير Excel
 
 </button>
 
-<button
-onclick="clearDatabase()"
-style="
-background:#dc2626;
-color:#fff;
-border:none;
-padding:14px;
-border-radius:10px;
-width:100%;
-font-size:18px;
-margin-bottom:20px;
-cursor:pointer;
-">
-
-تفريغ البيانات
-
-</button>
-
 <div class="progressBox">
 
-<div class="progressBar"
+<div
+class="progressBar"
 id="storageBar">
 
 0%
@@ -692,17 +630,24 @@ id="storageBar">
 
 </div>
 
+<input
+type="text"
+id="searchBox"
+class="searchBox"
+placeholder="بحث شامل..."
+onkeyup="searchTables()">
+
 <div id="tableContainer"></div>
 
 </div>
 
 `;
 
-loadStorageData();
+loadData();
 
 }
 
-function loadStorageData(){
+function loadData(){
 
 let tx =
 db.transaction(
@@ -721,127 +666,120 @@ getAll.onsuccess = function(){
 let data =
 getAll.result;
 
-renderStorageTable(data);
+renderTables(data);
 
-updateStorageBar(data);
+updateBar(data);
+
+};
 
 }
 
-}
-
-function renderStorageTable(data){
+function renderTables(data){
 
 let div =
 document.getElementById(
 "tableContainer"
 );
 
-if(data.length == 0){
-
-div.innerHTML =
-"لا توجد بيانات";
-
-return;
-
-}
-
-let headers = [];
-
-data.forEach(r=>{
-
-Object.keys(r).forEach(k=>{
-
-if(k != "id"){
-
-if(!headers.includes(k)){
-
-headers.push(k);
-
-}
-
-}
-
-});
-
-});
-
-let groups = [];
-
-for(let i=0;i<headers.length;i+=5){
-
-groups.push(
-headers.slice(i,i+5)
-);
-
-}
-
-let html = `
-
-<input
-type="text"
-id="searchBox"
-class="searchBox"
-placeholder="بحث شامل..."
-onkeyup="searchTables()"
->
-
-`;
-
-groups.forEach(group=>{
-
-html += "<table>";
-
-html += "<tr>";
-
-group.forEach(h=>{
-
-html += `
-<th>
-${h}
-</th>
-`;
-
-});
-
-html += `
-<th>
-واتساب
-</th>
-`;
-
-html += "</tr>";
+div.innerHTML = "";
 
 data.forEach((row,rowIndex)=>{
 
-html += `
-<tr class="dataRow">
-`;
+let table =
+document.createElement("table");
 
-group.forEach(h=>{
+let title =
+document.createElement("h2");
 
-let val =
-row[h] || "";
+title.className = "groupTitle";
+
+title.innerText =
+row["اسم الموقع"] || "بدون اسم";
+
+div.appendChild(title);
+
+let tr1 =
+document.createElement("tr");
+
+Object.keys(row).forEach(k=>{
 
 if(
-typeof val === "string"
+k != "id"
 &&
-val.startsWith("data:image")
+!k.includes(" صورة ")
 ){
 
-val = `
+let th =
+document.createElement("th");
+
+th.innerText = k;
+
+tr1.appendChild(th);
+
+}
+
+});
+
+let thWA =
+document.createElement("th");
+
+thWA.innerText = "واتساب";
+
+tr1.appendChild(thWA);
+
+table.appendChild(tr1);
+
+let tr2 =
+document.createElement("tr");
+
+Object.keys(row).forEach(k=>{
+
+if(
+k != "id"
+&&
+!k.includes(" صورة ")
+){
+
+let td =
+document.createElement("td");
+
+td.className = "dataRow";
+
+td.innerHTML = `
+<div>
+${row[k]}
+</div>
+`;
+
+let imgs = [];
+
+Object.keys(row).forEach(imgKey=>{
+
+if(
+imgKey.startsWith(k + " صورة")
+){
+
+imgs.push(row[imgKey]);
+
+}
+
+});
+
+if(imgs.length){
+
+let box =
+document.createElement("div");
+
+box.className =
+"imageCell";
+
+imgs.forEach(img=>{
+
+box.innerHTML += `
 
 <div>
 
-<img
-src="${val}"
-style="
-width:80px;
-border-radius:10px;
-display:block;
-margin:auto;
-">
-
-<br>
+<img src="${img}">
 
 <label>
 
@@ -849,7 +787,7 @@ margin:auto;
 type="checkbox"
 class="waImage"
 data-row="${rowIndex}"
-data-img="${val}"
+data-img="${img}"
 checked>
 
 إرسال
@@ -860,18 +798,22 @@ checked>
 
 `;
 
+});
+
+td.appendChild(box);
+
 }
 
-html += `
-<td>
-${val}
-</td>
-`;
+tr2.appendChild(td);
+
+}
 
 });
 
-html += `
-<td>
+let tdWA =
+document.createElement("td");
+
+tdWA.innerHTML = `
 
 <button
 onclick="sendWhatsApp(${rowIndex})"
@@ -888,18 +830,15 @@ cursor:pointer;
 
 </button>
 
-</td>
 `;
 
-html += "</tr>";
+tr2.appendChild(tdWA);
+
+table.appendChild(tr2);
+
+div.appendChild(table);
 
 });
-
-html += "</table>";
-
-});
-
-div.innerHTML = html;
 
 window.currentTableData = data;
 
@@ -914,23 +853,22 @@ document.getElementById(
 .value
 .toLowerCase();
 
-let rows =
-document.querySelectorAll(
-".dataRow"
-);
+let tables =
+document.querySelectorAll("table");
 
-rows.forEach(row=>{
+tables.forEach(t=>{
 
-let txt =
-row.innerText.toLowerCase();
+if(
+t.innerText
+.toLowerCase()
+.includes(val)
+){
 
-if(txt.includes(val)){
-
-row.style.display = "";
+t.style.display = "";
 
 }else{
 
-row.style.display = "none";
+t.style.display = "none";
 
 }
 
@@ -938,7 +876,7 @@ row.style.display = "none";
 
 }
 
-function updateStorageBar(data){
+function updateBar(data){
 
 let text =
 JSON.stringify(data);
@@ -951,7 +889,7 @@ let max =
 
 let percent =
 Math.min(
-(size / max) * 100,
+(size/max)*100,
 100
 );
 
@@ -968,32 +906,6 @@ percent.toFixed(1) + "%";
 
 }
 
-function clearDatabase(){
-
-let ok =
-confirm(
-"هل تريد حذف جميع البيانات؟"
-);
-
-if(!ok) return;
-
-let tx =
-db.transaction(
-"records",
-"readwrite"
-);
-
-let store =
-tx.objectStore("records");
-
-store.clear();
-
-alert("تم تفريغ البيانات");
-
-loadStorageData();
-
-}
-
 async function sendWhatsApp(index){
 
 let row =
@@ -1003,32 +915,26 @@ let text = "";
 
 Object.keys(row).forEach(k=>{
 
-if(k != "id"){
-
-let val = row[k];
-
 if(
-!(
-typeof val === "string"
+k != "id"
 &&
-val.startsWith("data:image")
-)
+!k.includes(" صورة ")
 ){
 
-text += val + "\n";
-
-}
+text +=
+k + " : " +
+row[k] + "\n";
 
 }
 
 });
 
-let selectedImages =
+let selected =
 document.querySelectorAll(
 '.waImage[data-row="'+index+'"]:checked'
 );
 
-if(selectedImages.length == 0){
+if(!selected.length){
 
 alert("اختر صورة");
 
@@ -1037,7 +943,7 @@ return;
 }
 
 let imgSrc =
-selectedImages[0]
+selected[0]
 .getAttribute("data-img");
 
 function dataURLtoFile(dataurl, filename){
@@ -1074,7 +980,7 @@ filename,
 let file =
 dataURLtoFile(
 imgSrc,
-"whatsapp-image.jpg"
+"image.jpg"
 );
 
 try{
@@ -1089,7 +995,6 @@ files:[file]
 await navigator.share({
 
 files:[file],
-
 text:text
 
 });
@@ -1132,7 +1037,7 @@ async function(){
 let data =
 getAll.result;
 
-if(data.length == 0){
+if(!data.length){
 
 alert("لا توجد بيانات");
 
@@ -1148,84 +1053,148 @@ workbook.addWorksheet(
 "البيانات"
 );
 
+let currentRow = 1;
+
+for(let r=0;r<data.length;r++){
+
+let rowData =
+data[r];
+
+// عنوان الموقع
+
+sheet.mergeCells(
+`A${currentRow}:F${currentRow}`
+);
+
+let title =
+sheet.getCell(
+`A${currentRow}`
+);
+
+title.value =
+rowData["اسم الموقع"];
+
+title.font = {
+bold:true,
+size:18,
+color:{argb:"FFFFFF"}
+};
+
+title.fill = {
+type:"pattern",
+pattern:"solid",
+fgColor:{argb:"673AB7"}
+};
+
+currentRow++;
+
+// العناوين
+
 let headers = [];
 
-data.forEach(r=>{
+Object.keys(rowData).forEach(k=>{
 
-Object.keys(r).forEach(k=>{
-
-if(k != "id"){
-
-if(!headers.includes(k)){
+if(
+k != "id"
+&&
+!k.includes(" صورة ")
+){
 
 headers.push(k);
 
 }
 
-}
-
-});
-
 });
 
 sheet.addRow(headers);
 
-for(let i=0;i<data.length;i++){
+headers.forEach((h,i)=>{
 
-let rowData = [];
+let cell =
+sheet.getCell(
+currentRow,
+i+1
+);
+
+cell.font = {
+bold:true,
+color:{argb:"FFFFFF"}
+};
+
+cell.fill = {
+type:"pattern",
+pattern:"solid",
+fgColor:{argb:"7E57C2"}
+};
+
+});
+
+currentRow++;
+
+// البيانات
+
+let values = [];
 
 headers.forEach(h=>{
 
-let val =
-data[i][h] || "";
+values.push(
+rowData[h] || ""
+);
+
+});
+
+let row =
+sheet.addRow(values);
+
+row.height = 220;
+
+// الصور داخل نفس الخلية
+
+for(let c=0;c<headers.length;c++){
+
+let key =
+headers[c];
+
+let images = [];
+
+Object.keys(rowData).forEach(imgKey=>{
 
 if(
-typeof val === "string"
-&&
-val.startsWith("data:image")
+imgKey.startsWith(
+key + " صورة"
+)
 ){
 
-rowData.push("");
-
-}else{
-
-rowData.push(val);
+images.push(
+rowData[imgKey]
+);
 
 }
 
 });
 
-let row =
-sheet.addRow(rowData);
-
-row.height = 90;
-
-for(let j=0;j<headers.length;j++){
-
-let key =
-headers[j];
-
-let val =
-data[i][key];
-
-if(
-typeof val === "string"
-&&
-val.startsWith("data:image")
-){
+images
+.slice(0,4)
+.forEach((img,index)=>{
 
 let extension =
-val.includes("image/png")
+img.includes("png")
 ? "png"
 : "jpeg";
 
 let imageId =
 workbook.addImage({
 
-base64:val,
+base64:img,
 extension:extension
 
 });
+
+let colOffset =
+(index % 2) * 0.45;
+
+let rowOffset =
+(index >= 2 ? 0.45 : 0);
 
 sheet.addImage(
 
@@ -1233,28 +1202,30 @@ imageId,
 
 {
 tl:{
-col:j + 0.15,
-row:i + 1.15
+col:c + colOffset + 0.1,
+row:currentRow - 0.9 + rowOffset
 },
 
 ext:{
-width:85,
-height:85
+width:70,
+height:70
 }
 
 }
 
 );
 
-}
+});
 
 }
+
+currentRow += 4;
 
 }
 
 sheet.columns.forEach(col=>{
 
-col.width = 28;
+col.width = 30;
 
 });
 
@@ -1269,7 +1240,7 @@ new Blob([buffer]),
 
 );
 
-}
+};
 
 }
 
