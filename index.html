@@ -295,8 +295,6 @@ db = e.target.result;
 
 };
 
-// أول مجموعة
-
 createGroup();
 
 function requestAdminAccess(){
@@ -326,7 +324,7 @@ document.getElementById("questions");
 let siteCard =
 document.createElement("div");
 
-siteCard.className = "card";
+siteCard.className = "card groupCard";
 
 siteCard.innerHTML = `
 
@@ -347,7 +345,7 @@ questions.appendChild(siteCard);
 let linkCard =
 document.createElement("div");
 
-linkCard.className = "card";
+linkCard.className = "card groupCard";
 
 linkCard.innerHTML = `
 
@@ -403,8 +401,10 @@ document.getElementById("questions");
 let currentFields =
 questions.querySelectorAll(".dynamicField");
 
-// كل مجموعة = 5
-// اسم الموقع + الرابط + 3 حقول
+// كل مجموعة:
+// اسم الموقع
+// الرابط
+// 3 حقول
 
 if(
 currentFields.length > 0
@@ -511,34 +511,59 @@ addField("رقم البلاغ");
 
 function sendData(){
 
-let row = {};
+let rows = [];
 
-let siteNames =
-document.querySelectorAll(".groupSiteName");
+let questions =
+document.getElementById("questions");
 
-let siteLinks =
-document.querySelectorAll(".groupSiteLink");
+let allCards =
+questions.children;
 
-siteNames.forEach((s,i)=>{
+let currentRow = {};
 
-row[
-"اسم الموقع " + (i+1)
-] = s.value;
+for(let i=0;i<allCards.length;i++){
 
-});
+let card = allCards[i];
 
-siteLinks.forEach((s,i)=>{
+// اسم الموقع
 
-row[
-"رابط الموقع " + (i+1)
-] = s.value;
+let siteName =
+card.querySelector(".groupSiteName");
 
-});
+if(siteName){
 
-let cards =
-document.querySelectorAll(".dynamicField");
+if(Object.keys(currentRow).length){
 
-cards.forEach((card,index)=>{
+rows.push(currentRow);
+
+}
+
+currentRow = {};
+
+currentRow["اسم الموقع"] =
+siteName.value;
+
+continue;
+
+}
+
+// رابط الموقع
+
+let siteLink =
+card.querySelector(".groupSiteLink");
+
+if(siteLink){
+
+currentRow["رابط الموقع"] =
+siteLink.value;
+
+continue;
+
+}
+
+// الحقول
+
+if(card.classList.contains("dynamicField")){
 
 let name =
 card.querySelector(".fieldName");
@@ -548,20 +573,20 @@ card.querySelector(".fieldValue");
 
 if(name && value){
 
-row[name.value] =
+currentRow[name.value] =
 value.value;
 
 let previews =
 card.querySelectorAll(".preview");
 
-previews.forEach((img,imgIndex)=>{
+previews.forEach((img,index)=>{
 
 if(img.src){
 
-row[
+currentRow[
 name.value +
 " صورة " +
-(imgIndex+1)
+(index+1)
 
 ] = img.src;
 
@@ -571,7 +596,17 @@ name.value +
 
 }
 
-});
+}
+
+}
+
+// آخر صف
+
+if(Object.keys(currentRow).length){
+
+rows.push(currentRow);
+
+}
 
 let tx =
 db.transaction(
@@ -582,7 +617,11 @@ db.transaction(
 let store =
 tx.objectStore("records");
 
-store.add(row);
+rows.forEach(r=>{
+
+store.add(r);
+
+});
 
 tx.oncomplete = function(){
 
@@ -1058,12 +1097,9 @@ text:text
 }else{
 
 window.open(
-
 "https://wa.me/?text=" +
 encodeURIComponent(text),
-
 "_blank"
-
 );
 
 }
@@ -1132,53 +1168,13 @@ headers.push(k);
 
 });
 
-let groups = [];
-
-for(let i=0;i<headers.length;i+=5){
-
-groups.push(
-headers.slice(i,i+5)
-);
-
-}
-
-let currentRow = 1;
-
-for(let g=0; g<groups.length; g++){
-
-let group =
-groups[g];
-
-sheet.addRow(group);
-
-group.forEach((h,index)=>{
-
-let cell =
-sheet.getCell(
-currentRow,
-index + 1
-);
-
-cell.font = {
-bold:true,
-color:{argb:"FFFFFF"}
-};
-
-cell.fill = {
-type:"pattern",
-pattern:"solid",
-fgColor:{argb:"673AB7"}
-};
-
-});
-
-currentRow++;
+sheet.addRow(headers);
 
 for(let i=0;i<data.length;i++){
 
 let rowData = [];
 
-group.forEach(h=>{
+headers.forEach(h=>{
 
 let val =
 data[i][h] || "";
@@ -1204,10 +1200,10 @@ sheet.addRow(rowData);
 
 row.height = 90;
 
-for(let j=0;j<group.length;j++){
+for(let j=0;j<headers.length;j++){
 
 let key =
-group[j];
+headers[j];
 
 let val =
 data[i][key];
@@ -1238,7 +1234,7 @@ imageId,
 {
 tl:{
 col:j + 0.15,
-row:currentRow - 0.85
+row:i + 1.15
 },
 
 ext:{
@@ -1253,12 +1249,6 @@ height:85
 }
 
 }
-
-currentRow++;
-
-}
-
-currentRow += 2;
 
 }
 
