@@ -649,7 +649,7 @@ return;
 
 }
 
-let headers = [];
+let allHeaders = [];
 
 data.forEach(r=>{
 
@@ -657,9 +657,9 @@ Object.keys(r).forEach(k=>{
 
 if(k != "id"){
 
-if(!headers.includes(k)){
+if(!allHeaders.includes(k)){
 
-headers.push(k);
+allHeaders.push(k);
 
 }
 
@@ -671,10 +671,10 @@ headers.push(k);
 
 let groups = [];
 
-for(let i=0;i<headers.length;i+=5){
+for(let i=0;i<allHeaders.length;i+=5){
 
 groups.push(
-headers.slice(i,i+5)
+allHeaders.slice(i,i+5)
 );
 
 }
