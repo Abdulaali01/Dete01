@@ -185,17 +185,28 @@ table{
 width:100%;
 border-collapse:collapse;
 background:#fff;
+margin-bottom:25px;
 }
 
 th,td{
 border:1px solid #ccc;
 padding:10px;
 text-align:center;
+vertical-align:middle;
 }
 
 th{
 background:#673ab7;
 color:#fff;
+}
+
+.searchBox{
+width:100%;
+padding:14px;
+margin-bottom:20px;
+border-radius:10px;
+border:1px solid #ccc;
+font-size:18px;
 }
 
 @media(max-width:900px){
@@ -289,19 +300,13 @@ onclick="requestAdminAccess()">
 
 <script>
 
-// كلمة المرور
-
 const ADMIN_PASSWORD =
 "481481";
-
-// فتح الإدارة
 
 function requestAdminAccess(){
 
 let pass =
-prompt(
-"أدخل كلمة المرور"
-);
+prompt("أدخل كلمة المرور");
 
 if(pass === ADMIN_PASSWORD){
 
@@ -315,8 +320,6 @@ alert("كلمة المرور غير صحيحة");
 
 }
 
-// رابط الموقع
-
 navigator.geolocation.getCurrentPosition(function(pos){
 
 let lat = pos.coords.latitude;
@@ -327,8 +330,6 @@ document.getElementById("siteLink").value =
 + lat + "," + lng;
 
 });
-
-// نسخ الرابط
 
 function copyLink(){
 
@@ -342,8 +343,6 @@ document.execCommand("copy");
 alert("تم نسخ الرابط");
 
 }
-
-// قاعدة البيانات
 
 let db;
 
@@ -374,11 +373,7 @@ db = e.target.result;
 
 };
 
-// أول عنوان
-
 addField("رقم البلاغ");
-
-// إضافة حقل
 
 function addField(defaultTitle = ""){
 
@@ -473,8 +468,6 @@ reader.readAsDataURL(file);
 
 }
 
-// إرسال البيانات
-
 function sendData(){
 
 let row = {};
@@ -541,8 +534,6 @@ alert("تم إرسال البيانات");
 }
 
 }
-
-// لوحة الإدارة
 
 function openStoragePage(){
 
@@ -615,8 +606,6 @@ loadStorageData();
 
 }
 
-// تحميل البيانات
-
 function loadStorageData(){
 
 let tx =
@@ -643,8 +632,6 @@ updateStorageBar(data);
 }
 
 }
-
-// رسم الجدول
 
 function renderStorageTable(data){
 
@@ -682,11 +669,35 @@ headers.push(k);
 
 });
 
-let html = "<table>";
+let groups = [];
+
+for(let i=0;i<headers.length;i+=5){
+
+groups.push(
+headers.slice(i,i+5)
+);
+
+}
+
+let html = `
+
+<input
+type="text"
+id="searchBox"
+class="searchBox"
+placeholder="بحث شامل..."
+onkeyup="searchTables()"
+>
+
+`;
+
+groups.forEach(group=>{
+
+html += "<table>";
 
 html += "<tr>";
 
-headers.forEach(h=>{
+group.forEach(h=>{
 
 html += `
 <th>
@@ -706,9 +717,11 @@ html += "</tr>";
 
 data.forEach((row,rowIndex)=>{
 
-html += "<tr>";
+html += `
+<tr class="dataRow">
+`;
 
-headers.forEach(h=>{
+group.forEach(h=>{
 
 let val =
 row[h] || "";
@@ -788,13 +801,46 @@ html += "</tr>";
 
 html += "</table>";
 
+});
+
 div.innerHTML = html;
 
 window.currentTableData = data;
 
 }
 
-// شريط التخزين
+function searchTables(){
+
+let val =
+document.getElementById(
+"searchBox"
+)
+.value
+.toLowerCase();
+
+let rows =
+document.querySelectorAll(
+".dataRow"
+);
+
+rows.forEach(row=>{
+
+let txt =
+row.innerText.toLowerCase();
+
+if(txt.includes(val)){
+
+row.style.display = "";
+
+}else{
+
+row.style.display = "none";
+
+}
+
+});
+
+}
 
 function updateStorageBar(data){
 
@@ -826,8 +872,6 @@ percent.toFixed(1) + "%";
 
 }
 
-// تفريغ البيانات
-
 function clearDatabase(){
 
 let ok =
@@ -853,8 +897,6 @@ alert("تم تفريغ البيانات");
 loadStorageData();
 
 }
-
-// واتساب
 
 async function sendWhatsApp(index){
 
@@ -886,8 +928,6 @@ val + "\n";
 
 });
 
-// الصور المحددة
-
 let selectedImages =
 document.querySelectorAll(
 '.waImage[data-row="'+index+'"]:checked'
@@ -901,13 +941,9 @@ return;
 
 }
 
-// أول صورة محددة
-
 let imgSrc =
 selectedImages[0]
 .getAttribute("data-img");
-
-// تحويل Base64 إلى File
 
 function dataURLtoFile(dataurl, filename){
 
@@ -946,8 +982,6 @@ imgSrc,
 "whatsapp-image.jpg"
 );
 
-// مشاركة مباشرة
-
 try{
 
 if(
@@ -985,8 +1019,6 @@ alert("فشل الإرسال");
 }
 
 }
-
-// تصدير Excel
 
 async function exportExcel(){
 
@@ -1044,13 +1076,53 @@ headers.push(k);
 
 });
 
-sheet.addRow(headers);
+let groups = [];
+
+for(let i=0;i<headers.length;i+=5){
+
+groups.push(
+headers.slice(i,i+5)
+);
+
+}
+
+let currentRow = 1;
+
+for(let g=0; g<groups.length; g++){
+
+let group =
+groups[g];
+
+sheet.addRow(group);
+
+group.forEach((h,index)=>{
+
+let cell =
+sheet.getCell(
+currentRow,
+index + 1
+);
+
+cell.font = {
+bold:true,
+color:{argb:"FFFFFF"}
+};
+
+cell.fill = {
+type:"pattern",
+pattern:"solid",
+fgColor:{argb:"673AB7"}
+};
+
+});
+
+currentRow++;
 
 for(let i=0;i<data.length;i++){
 
 let rowData = [];
 
-headers.forEach(h=>{
+group.forEach(h=>{
 
 let val =
 data[i][h] || "";
@@ -1076,10 +1148,10 @@ sheet.addRow(rowData);
 
 row.height = 90;
 
-for(let j=0;j<headers.length;j++){
+for(let j=0;j<group.length;j++){
 
 let key =
-headers[j];
+group[j];
 
 let val =
 data[i][key];
@@ -1110,7 +1182,7 @@ imageId,
 {
 tl:{
 col:j + 0.15,
-row:i + 1.15
+row:currentRow - 0.85
 },
 
 ext:{
@@ -1125,6 +1197,12 @@ height:85
 }
 
 }
+
+currentRow++;
+
+}
+
+currentRow += 2;
 
 }
 
