@@ -1,1251 +1,597 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <title>نظام المواقع والبلاغات</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
 <style>
-
-*{
-box-sizing:border-box;
-font-family:tahoma;
-}
-
-body{
-margin:0;
-background:#ede7f6;
-padding:20px;
-}
-
-.container{
-max-width:1100px;
-margin:auto;
-}
-
-.top{
-height:10px;
-background:#673ab7;
-border-radius:16px 16px 0 0;
-}
-
-.form{
-background:#fff;
-padding:25px;
-border-radius:0 0 16px 16px;
-}
-
-.title{
-font-size:32px;
-margin-bottom:20px;
-font-weight:bold;
-}
-
-.card{
-background:#fff;
-border:1px solid #ddd;
-border-radius:14px;
-padding:20px;
-margin-bottom:18px;
-}
-
-.groupTitle{
-background:#673ab7;
-color:#fff;
-padding:14px;
-border-radius:12px;
-margin:20px 0 10px;
-font-size:20px;
-font-weight:bold;
-}
-
-.label{
-display:block;
-margin-bottom:10px;
-font-size:18px;
-}
-
-input[type=text]{
-width:100%;
-border:none;
-border-bottom:2px solid #ccc;
-padding:12px;
-font-size:16px;
-outline:none;
-}
-
-input[type=text]:focus{
-border-bottom:2px solid #673ab7;
-}
-
-.uploadBox{
-border:2px dashed #673ab7;
-padding:15px;
-border-radius:12px;
-background:#faf7ff;
-margin-top:10px;
-}
-
-.previewGrid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px;
-margin-top:10px;
-}
-
-.previewItem{
-position:relative;
-}
-
-.preview{
-width:100%;
-height:110px;
-object-fit:cover;
-border-radius:10px;
-border:1px solid #ccc;
-}
-
-.toolbar{
-position:fixed;
-left:20px;
-top:120px;
-z-index:999;
-}
-
-.toolBtn{
-width:60px;
-height:60px;
-border:none;
-border-radius:14px;
-font-size:30px;
-background:#673ab7;
-color:#fff;
-cursor:pointer;
-box-shadow:0 4px 12px rgba(0,0,0,.2);
-}
-
-.btn{
-background:#16a34a;
-color:#fff;
-border:none;
-border-radius:10px;
-padding:15px;
-width:100%;
-font-size:18px;
-cursor:pointer;
-margin-top:10px;
-}
-
-.copyBtn{
-background:#1a73e8;
-color:#fff;
-border:none;
-border-radius:10px;
-padding:10px;
-margin-top:10px;
-cursor:pointer;
-}
-
-.addImgBtn{
-background:#673ab7;
-color:#fff;
-border:none;
-border-radius:10px;
-padding:10px;
-margin-top:10px;
-cursor:pointer;
-}
-
-.adminBtn{
-background:#111;
-color:#fff;
-border:none;
-border-radius:10px;
-padding:12px;
-width:100%;
-font-size:16px;
-margin-top:10px;
-cursor:pointer;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-background:#fff;
-margin-bottom:25px;
-}
-
-th,td{
-border:1px solid #ccc;
-padding:10px;
-text-align:center;
-vertical-align:top;
-}
-
-th{
-background:#673ab7;
-color:#fff;
-}
-
-.imageCell{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:6px;
-}
-
-.imageCell img{
-width:100%;
-height:90px;
-object-fit:cover;
-border-radius:10px;
-border:1px solid #ccc;
-}
-
-.searchBox{
-width:100%;
-padding:14px;
-margin-bottom:20px;
-border-radius:10px;
-border:1px solid #ccc;
-font-size:18px;
-}
-
-.progressBox{
-width:100%;
-height:26px;
-background:#ddd;
-border-radius:20px;
-overflow:hidden;
-margin-bottom:20px;
-}
-
-.progressBar{
-height:100%;
-width:0%;
-background:#673ab7;
-color:#fff;
-text-align:center;
-line-height:26px;
-font-size:14px;
-}
-
+*{box-sizing:border-box;font-family:tahoma}
+body{margin:0;background:#ede7f6;padding:20px}
+.container{max-width:1100px;margin:auto}
+.top{height:10px;background:#673ab7;border-radius:16px 16px 0 0}
+.form{background:#fff;padding:25px;border-radius:0 0 16px 16px}
+.title{font-size:32px;margin-bottom:20px;font-weight:bold}
+.card{background:#fff;border:1px solid #ddd;border-radius:14px;padding:20px;margin-bottom:18px}
+.groupTitle{background:#673ab7;color:#fff;padding:14px;border-radius:12px;margin:20px 0 10px;font-size:20px;font-weight:bold}
+.label{display:block;margin-bottom:10px;font-size:18px}
+input[type=text],input[type=datetime-local]{width:100%;border:none;border-bottom:2px solid #ccc;padding:12px;font-size:16px;outline:none}
+input:focus{border-bottom:2px solid #673ab7}
+.previewGrid,.imageCell{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.preview,.imageCell img{width:100%;height:100px;object-fit:cover;border-radius:10px;border:1px solid #ccc}
+.toolbar{position:fixed;left:20px;top:120px;z-index:999}
+.toolBtn{width:60px;height:60px;border:none;border-radius:14px;font-size:30px;background:#673ab7;color:#fff;cursor:pointer}
+.btn{background:#16a34a;color:#fff;border:none;border-radius:10px;padding:15px;width:100%;font-size:18px;cursor:pointer;margin-top:10px}
+.copyBtn,.addImgBtn{background:#673ab7;color:#fff;border:none;border-radius:10px;padding:10px;margin-top:10px;cursor:pointer}
+.copyBtn{background:#1a73e8}
+.adminBtn{background:#111;color:#fff;border:none;border-radius:10px;padding:12px;width:100%;font-size:16px;margin-top:10px;cursor:pointer}
+table{width:100%;border-collapse:collapse;background:#fff;margin-bottom:25px}
+th,td{border:1px solid #ccc;padding:10px;text-align:center;vertical-align:top}
+th{background:#673ab7;color:#fff}
+.searchBox{width:100%;padding:14px;margin-bottom:15px;border-radius:10px;border:1px solid #ccc;font-size:18px}
+.progressBox{width:100%;height:26px;background:#ddd;border-radius:20px;overflow:hidden;margin-bottom:15px}
+.progressBar{height:100%;width:0%;background:#673ab7;color:#fff;text-align:center;line-height:26px;font-size:14px}
+.filterBox{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}
+.filterBox input{flex:1}
+.filterBox button{border:none;border-radius:10px;color:#fff;padding:12px 18px;cursor:pointer}
 </style>
-
 </head>
 
 <body>
 
 <div class="toolbar">
-
-<button class="toolBtn"
-onclick="addField()">
-
-+
-
-</button>
-
+<button class="toolBtn" onclick="addField()">+</button>
 </div>
 
 <div class="container">
-
 <div class="top"></div>
-
 <div class="form">
-
-<div class="title">
-نظام المواقع والبلاغات
-</div>
-
+<div class="title">نظام المواقع والبلاغات</div>
 <div id="questions"></div>
 
-<button class="btn"
-onclick="sendData()">
-
-إرسال
-
-</button>
-
-<button class="adminBtn"
-onclick="openAdmin()">
-
-لوحة الإدارة
-
-</button>
-
+<button class="btn" onclick="sendData()">إرسال</button>
+<button class="adminBtn" onclick="openAdmin()">لوحة الإدارة</button>
 </div>
-
 </div>
 
 <script>
-
 const ADMIN_PASSWORD = "481481";
-
 let db;
+let originalData = [];
+let filteredExportData = [];
 
-let request =
-indexedDB.open("SITE_DB",1);
+let request = indexedDB.open("SITE_DB",1);
 
 request.onupgradeneeded = function(e){
-
-db = e.target.result;
-
-if(!db.objectStoreNames.contains("records")){
-
-db.createObjectStore(
-"records",
-{
-keyPath:"id",
-autoIncrement:true
-}
-);
-
-}
-
+  db = e.target.result;
+  if(!db.objectStoreNames.contains("records")){
+    db.createObjectStore("records",{keyPath:"id",autoIncrement:true});
+  }
 };
 
 request.onsuccess = function(e){
-
-db = e.target.result;
-
+  db = e.target.result;
 };
 
 createGroup();
+addField();
 
 function createGroup(){
+  let q = document.getElementById("questions");
+  let count = document.querySelectorAll(".groupBlock").length + 1;
 
-let q =
-document.getElementById("questions");
+  let wrap = document.createElement("div");
+  wrap.className = "groupBlock";
 
-let count =
-document.querySelectorAll(".groupBlock").length + 1;
+  wrap.innerHTML = `
+    <div class="groupTitle">الموقع ${count}</div>
 
-let wrap =
-document.createElement("div");
+    <div class="card">
+      <label class="label">اسم الموقع</label>
+      <input type="text" class="siteName" placeholder="اكتب اسم الموقع">
+    </div>
 
-wrap.className = "groupBlock";
+    <div class="card">
+      <label class="label">رابط الموقع من الخريطة</label>
+      <input type="text" class="siteLink" readonly>
+      <button class="copyBtn" onclick="copyLocation(this)">نسخ رابط الموقع الحالي</button>
+    </div>
+  `;
 
-wrap.innerHTML = `
-
-<div class="groupTitle">
-الموقع ${count}
-</div>
-
-<div class="card">
-
-<label class="label">
-اسم الموقع
-</label>
-
-<input type="text"
-class="siteName"
-placeholder="اكتب اسم الموقع">
-
-</div>
-
-<div class="card">
-
-<label class="label">
-رابط الموقع من الخريطة
-</label>
-
-<input type="text"
-class="siteLink"
-readonly>
-
-<button class="copyBtn"
-onclick="copyLocation(this)">
-
-نسخ رابط الموقع الحالي
-
-</button>
-
-</div>
-
-`;
-
-q.appendChild(wrap);
-
+  q.appendChild(wrap);
 }
 
 function copyLocation(btn){
-
-navigator.geolocation.getCurrentPosition(function(pos){
-
-let lat = pos.coords.latitude;
-let lng = pos.coords.longitude;
-
-let link =
-"https://maps.google.com/?q="
-+ lat + "," + lng;
-
-btn.parentElement
-.querySelector(".siteLink")
-.value = link;
-
-navigator.clipboard.writeText(link);
-
-alert("تم نسخ الرابط");
-
-});
-
+  navigator.geolocation.getCurrentPosition(function(pos){
+    let link = "https://maps.google.com/?q=" + pos.coords.latitude + "," + pos.coords.longitude;
+    btn.parentElement.querySelector(".siteLink").value = link;
+    navigator.clipboard.writeText(link);
+    alert("تم نسخ الرابط");
+  });
 }
 
 function addField(){
+  let groups = document.querySelectorAll(".groupBlock");
+  let lastGroup = groups[groups.length-1];
+  let currentFields = lastGroup.querySelectorAll(".dynamicField");
 
-let groups =
-document.querySelectorAll(".groupBlock");
+  if(currentFields.length >= 3){
+    createGroup();
+    groups = document.querySelectorAll(".groupBlock");
+    lastGroup = groups[groups.length-1];
+  }
 
-let lastGroup =
-groups[groups.length-1];
+  let field = document.createElement("div");
+  field.className = "card dynamicField";
 
-let currentFields =
-lastGroup.querySelectorAll(".dynamicField");
+  field.innerHTML = `
+    <input type="text" class="fieldName" placeholder="اكتب اسم العمود">
+    <br><br>
+    <input type="text" class="fieldValue" placeholder="اكتب القيمة">
 
-// كل موقع = 5 أعمدة
-// اسم الموقع + الرابط + 3 حقول
+    <button type="button" class="addImgBtn">+ إضافة صور</button>
+    <div class="previewGrid"></div>
+  `;
 
-if(currentFields.length >= 3){
+  lastGroup.appendChild(field);
 
-createGroup();
+  let btn = field.querySelector(".addImgBtn");
 
-groups =
-document.querySelectorAll(".groupBlock");
+  btn.onclick = function(){
+    let grid = field.querySelector(".previewGrid");
 
-lastGroup =
-groups[groups.length-1];
+    if(grid.querySelectorAll(".preview").length >= 4){
+      alert("الحد الأقصى 4 صور");
+      return;
+    }
 
+    let box = document.createElement("div");
+    box.innerHTML = `
+      <input type="file" accept="image/*" class="imgInput">
+      <img class="preview">
+    `;
+
+    grid.appendChild(box);
+
+    let input = box.querySelector(".imgInput");
+    let img = box.querySelector(".preview");
+
+    input.onchange = function(e){
+      let file = e.target.files[0];
+      if(!file) return;
+
+      let reader = new FileReader();
+      reader.onload = function(ev){
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
+  };
 }
-
-let field =
-document.createElement("div");
-
-field.className =
-"card dynamicField";
-
-field.innerHTML = `
-
-<input type="text"
-class="fieldName"
-placeholder="اكتب اسم العمود">
-
-<br><br>
-
-<input type="text"
-class="fieldValue"
-placeholder="اكتب القيمة">
-
-<button
-type="button"
-class="addImgBtn">
-
-+ إضافة صور
-
-</button>
-
-<div class="previewGrid"></div>
-
-`;
-
-lastGroup.appendChild(field);
-
-let btn =
-field.querySelector(".addImgBtn");
-
-btn.onclick = function(){
-
-let grid =
-field.querySelector(".previewGrid");
-
-if(
-grid.querySelectorAll(".previewItem")
-.length >= 4
-){
-
-alert("الحد الأقصى 4 صور");
-
-return;
-
-}
-
-let item =
-document.createElement("div");
-
-item.className = "previewItem";
-
-item.innerHTML = `
-
-<input type="file"
-accept="image/*"
-class="imgInput">
-
-<img class="preview">
-
-`;
-
-grid.appendChild(item);
-
-let input =
-item.querySelector(".imgInput");
-
-let img =
-item.querySelector(".preview");
-
-input.onchange = function(e){
-
-let file = e.target.files[0];
-
-if(!file) return;
-
-let reader =
-new FileReader();
-
-reader.onload = function(ev){
-
-img.src =
-ev.target.result;
-
-};
-
-reader.readAsDataURL(file);
-
-};
-
-};
-
-}
-
-addField();
 
 function sendData(){
+  let groups = document.querySelectorAll(".groupBlock");
+  let tx = db.transaction("records","readwrite");
+  let store = tx.objectStore("records");
 
-let groups =
-document.querySelectorAll(".groupBlock");
+  groups.forEach(group=>{
+    let row = {};
 
-let tx =
-db.transaction(
-"records",
-"readwrite"
-);
+    row["اسم الموقع"] = group.querySelector(".siteName").value;
+    row["رابط الموقع"] = group.querySelector(".siteLink").value;
+    row["تاريخ الحفظ"] = new Date().toLocaleString("ar-EG");
 
-let store =
-tx.objectStore("records");
+    let fields = group.querySelectorAll(".dynamicField");
 
-groups.forEach(group=>{
+    fields.forEach(field=>{
+      let name = field.querySelector(".fieldName").value || "بدون اسم";
+      let value = field.querySelector(".fieldValue").value;
 
-let row = {};
+      row[name] = value;
 
-row["اسم الموقع"] =
-group.querySelector(".siteName").value;
+      let previews = field.querySelectorAll(".preview");
 
-row["رابط الموقع"] =
-group.querySelector(".siteLink").value;
+      previews.forEach((img,i)=>{
+        if(img.src){
+          row[name + " صورة " + (i+1)] = img.src;
+        }
+      });
+    });
 
-let fields =
-group.querySelectorAll(".dynamicField");
+    store.add(row);
+  });
 
-fields.forEach(field=>{
-
-let name =
-field.querySelector(".fieldName").value;
-
-let value =
-field.querySelector(".fieldValue").value;
-
-row[name] = value;
-
-let previews =
-field.querySelectorAll(".preview");
-
-previews.forEach((img,i)=>{
-
-if(img.src){
-
-row[
-name + " صورة " + (i+1)
-] = img.src;
-
-}
-
-});
-
-});
-
-store.add(row);
-
-});
-
-tx.oncomplete = function(){
-
-alert("تم حفظ البيانات");
-
-};
-
+  tx.oncomplete = function(){
+    alert("تم حفظ البيانات");
+  };
 }
 
 function openAdmin(){
+  let pass = prompt("أدخل كلمة المرور");
 
-let pass =
-prompt("أدخل كلمة المرور");
+  if(pass !== ADMIN_PASSWORD){
+    alert("كلمة المرور خطأ");
+    return;
+  }
 
-if(pass !== ADMIN_PASSWORD){
+  document.body.innerHTML = `
+    <div style="padding:20px">
+      <h2>البيانات المستلمة</h2>
 
-alert("كلمة المرور خطأ");
+      <button onclick="exportExcel()" class="btn" style="background:#1a73e8">تصدير Excel</button>
+      <button onclick="clearDatabase()" class="btn" style="background:#dc2626">حذف البيانات</button>
 
-return;
+      <div class="progressBox">
+        <div class="progressBar" id="storageBar">0%</div>
+      </div>
 
-}
+      <div class="filterBox">
+        <input type="datetime-local" id="fromDate">
+        <input type="datetime-local" id="toDate">
+        <button onclick="filterByDate()" style="background:#673ab7">فلترة</button>
+        <button onclick="resetFilter()" style="background:#dc2626">إلغاء الفلترة</button>
+      </div>
 
-document.body.innerHTML = `
+      <input type="text" id="searchBox" class="searchBox" placeholder="بحث شامل..." onkeyup="searchTables()">
 
-<div style="padding:20px">
+      <div id="tableContainer"></div>
+    </div>
+  `;
 
-<h2>
-البيانات المستلمة
-</h2>
-
-<button
-onclick="exportExcel()"
-class="btn"
-style="background:#1a73e8">
-
-تصدير Excel
-
-</button>
-
-<div class="progressBox">
-
-<div
-class="progressBar"
-id="storageBar">
-
-0%
-
-</div>
-
-</div>
-
-<input
-type="text"
-id="searchBox"
-class="searchBox"
-placeholder="بحث شامل..."
-onkeyup="searchTables()">
-
-<div id="tableContainer"></div>
-
-</div>
-
-`;
-
-loadData();
-
+  loadData();
 }
 
 function loadData(){
+  let tx = db.transaction("records","readonly");
+  let store = tx.objectStore("records");
+  let getAll = store.getAll();
 
-let tx =
-db.transaction(
-"records",
-"readonly"
-);
-
-let store =
-tx.objectStore("records");
-
-let getAll =
-store.getAll();
-
-getAll.onsuccess = function(){
-
-let data =
-getAll.result;
-
-renderTables(data);
-
-updateBar(data);
-
-};
-
+  getAll.onsuccess = function(){
+    originalData = getAll.result;
+    renderTables(originalData);
+    updateBar(originalData);
+  };
 }
 
 function renderTables(data){
+  filteredExportData = data;
 
-let div =
-document.getElementById(
-"tableContainer"
-);
+  let div = document.getElementById("tableContainer");
+  div.innerHTML = "";
 
-div.innerHTML = "";
+  if(!data.length){
+    div.innerHTML = "<p>لا توجد بيانات</p>";
+    return;
+  }
 
-data.forEach((row,rowIndex)=>{
+  data.forEach((row,rowIndex)=>{
+    let title = document.createElement("h2");
+    title.className = "groupTitle";
+    title.innerText = row["اسم الموقع"] || "بدون اسم";
+    div.appendChild(title);
 
-let table =
-document.createElement("table");
+    let table = document.createElement("table");
 
-let title =
-document.createElement("h2");
+    let tr1 = document.createElement("tr");
 
-title.className = "groupTitle";
+    Object.keys(row).forEach(k=>{
+      if(k !== "id" && !k.includes(" صورة ")){
+        let th = document.createElement("th");
+        th.innerText = k;
+        tr1.appendChild(th);
+      }
+    });
 
-title.innerText =
-row["اسم الموقع"] || "بدون اسم";
+    let thWA = document.createElement("th");
+    thWA.innerText = "واتساب";
+    tr1.appendChild(thWA);
+    table.appendChild(tr1);
 
-div.appendChild(title);
+    let tr2 = document.createElement("tr");
 
-let tr1 =
-document.createElement("tr");
+    Object.keys(row).forEach(k=>{
+      if(k !== "id" && !k.includes(" صورة ")){
+        let td = document.createElement("td");
+        td.innerHTML = `<div>${row[k] || ""}</div>`;
 
-Object.keys(row).forEach(k=>{
+        let imgs = [];
 
-if(
-k != "id"
-&&
-!k.includes(" صورة ")
-){
+        Object.keys(row).forEach(imgKey=>{
+          if(imgKey.startsWith(k + " صورة")){
+            imgs.push(row[imgKey]);
+          }
+        });
 
-let th =
-document.createElement("th");
+        if(imgs.length){
+          let box = document.createElement("div");
+          box.className = "imageCell";
 
-th.innerText = k;
+          imgs.slice(0,4).forEach(img=>{
+            box.innerHTML += `
+              <div>
+                <img src="${img}">
+                <label>
+                  <input type="checkbox" class="waImage" data-row="${rowIndex}" data-img="${img}" checked>
+                  إرسال
+                </label>
+              </div>
+            `;
+          });
 
-tr1.appendChild(th);
+          td.appendChild(box);
+        }
 
-}
+        tr2.appendChild(td);
+      }
+    });
 
-});
+    let tdWA = document.createElement("td");
+    tdWA.innerHTML = `
+      <button onclick="sendWhatsApp(${rowIndex})"
+      style="background:#25D366;color:#fff;border:none;padding:10px;border-radius:10px;cursor:pointer">
+      واتساب
+      </button>
+    `;
 
-let thWA =
-document.createElement("th");
+    tr2.appendChild(tdWA);
+    table.appendChild(tr2);
+    div.appendChild(table);
+  });
 
-thWA.innerText = "واتساب";
-
-tr1.appendChild(thWA);
-
-table.appendChild(tr1);
-
-let tr2 =
-document.createElement("tr");
-
-Object.keys(row).forEach(k=>{
-
-if(
-k != "id"
-&&
-!k.includes(" صورة ")
-){
-
-let td =
-document.createElement("td");
-
-td.className = "dataRow";
-
-td.innerHTML = `
-<div>
-${row[k]}
-</div>
-`;
-
-let imgs = [];
-
-Object.keys(row).forEach(imgKey=>{
-
-if(
-imgKey.startsWith(k + " صورة")
-){
-
-imgs.push(row[imgKey]);
-
-}
-
-});
-
-if(imgs.length){
-
-let box =
-document.createElement("div");
-
-box.className =
-"imageCell";
-
-imgs.forEach(img=>{
-
-box.innerHTML += `
-
-<div>
-
-<img src="${img}">
-
-<label>
-
-<input
-type="checkbox"
-class="waImage"
-data-row="${rowIndex}"
-data-img="${img}"
-checked>
-
-إرسال
-
-</label>
-
-</div>
-
-`;
-
-});
-
-td.appendChild(box);
-
-}
-
-tr2.appendChild(td);
-
-}
-
-});
-
-let tdWA =
-document.createElement("td");
-
-tdWA.innerHTML = `
-
-<button
-onclick="sendWhatsApp(${rowIndex})"
-style="
-background:#25D366;
-color:#fff;
-border:none;
-padding:10px;
-border-radius:10px;
-cursor:pointer;
-">
-
-واتساب
-
-</button>
-
-`;
-
-tr2.appendChild(tdWA);
-
-table.appendChild(tr2);
-
-div.appendChild(table);
-
-});
-
-window.currentTableData = data;
-
+  window.currentTableData = data;
 }
 
 function searchTables(){
+  let val = document.getElementById("searchBox").value.toLowerCase().trim();
+  let tables = document.querySelectorAll("table");
 
-let val =
-document.getElementById(
-"searchBox"
-)
-.value
-.toLowerCase();
+  tables.forEach(table=>{
+    let title = table.previousElementSibling;
+    let text = table.innerText.toLowerCase();
 
-let tables =
-document.querySelectorAll("table");
-
-tables.forEach(t=>{
-
-if(
-t.innerText
-.toLowerCase()
-.includes(val)
-){
-
-t.style.display = "";
-
-}else{
-
-t.style.display = "none";
-
+    if(text.includes(val)){
+      table.style.display = "";
+      if(title) title.style.display = "";
+    }else{
+      table.style.display = "none";
+      if(title) title.style.display = "none";
+    }
+  });
 }
 
-});
+function parseArabicDate(raw){
+  let nums = String(raw).match(/\d+/g);
+  if(!nums || nums.length < 6) return null;
 
+  let day = parseInt(nums[0]);
+  let month = parseInt(nums[1]) - 1;
+  let year = parseInt(nums[2]);
+  let hour = parseInt(nums[3]);
+  let minute = parseInt(nums[4]);
+  let second = parseInt(nums[5]);
+
+  return new Date(year,month,day,hour,minute,second);
+}
+
+function filterByDate(){
+  let from = document.getElementById("fromDate").value;
+  let to = document.getElementById("toDate").value;
+
+  if(!from && !to){
+    alert("حدد التاريخ");
+    return;
+  }
+
+  let filtered = originalData.filter(r=>{
+    let d = parseArabicDate(r["تاريخ الحفظ"]);
+    if(!d) return false;
+
+    let ok = true;
+
+    if(from){
+      ok = ok && d >= new Date(from);
+    }
+
+    if(to){
+      ok = ok && d <= new Date(to);
+    }
+
+    return ok;
+  });
+
+  renderTables(filtered);
+  searchTables();
+}
+
+function resetFilter(){
+  document.getElementById("fromDate").value = "";
+  document.getElementById("toDate").value = "";
+  renderTables(originalData);
+  searchTables();
 }
 
 function updateBar(data){
+  let text = JSON.stringify(data);
+  let size = new Blob([text]).size;
+  let max = 50 * 1024 * 1024;
+  let percent = Math.min((size/max)*100,100);
 
-let text =
-JSON.stringify(data);
+  let bar = document.getElementById("storageBar");
+  bar.style.width = percent + "%";
+  bar.innerHTML = percent.toFixed(1) + "%";
+}
 
-let size =
-new Blob([text]).size;
+function clearDatabase(){
+  let ok = confirm("هل تريد حذف جميع البيانات؟");
+  if(!ok) return;
 
-let max =
-50 * 1024 * 1024;
+  let tx = db.transaction("records","readwrite");
+  let store = tx.objectStore("records");
 
-let percent =
-Math.min(
-(size/max)*100,
-100
-);
+  store.clear();
 
-let bar =
-document.getElementById(
-"storageBar"
-);
-
-bar.style.width =
-percent + "%";
-
-bar.innerHTML =
-percent.toFixed(1) + "%";
-
+  tx.oncomplete = function(){
+    alert("تم حذف البيانات");
+    originalData = [];
+    filteredExportData = [];
+    renderTables([]);
+    updateBar([]);
+  };
 }
 
 async function sendWhatsApp(index){
+  let row = window.currentTableData[index];
+  let text = "";
 
-let row =
-window.currentTableData[index];
+  Object.keys(row).forEach(k=>{
+    if(k !== "id" && !k.includes(" صورة ")){
+      text += k + " : " + row[k] + "\n";
+    }
+  });
 
-let text = "";
+  let selected = document.querySelectorAll('.waImage[data-row="'+index+'"]:checked');
 
-Object.keys(row).forEach(k=>{
+  if(!selected.length){
+    alert("اختر صورة");
+    return;
+  }
 
-if(
-k != "id"
-&&
-!k.includes(" صورة ")
-){
+  let imgSrc = selected[0].getAttribute("data-img");
 
-text +=
-k + " : " +
-row[k] + "\n";
+  function dataURLtoFile(dataurl, filename){
+    let arr = dataurl.split(',');
+    let mime = arr[0].match(/:(.*?);/)[1];
+    let bstr = atob(arr[1]);
+    let n = bstr.length;
+    let u8arr = new Uint8Array(n);
 
-}
+    while(n--){
+      u8arr[n] = bstr.charCodeAt(n);
+    }
 
-});
+    return new File([u8arr], filename, {type:mime});
+  }
 
-let selected =
-document.querySelectorAll(
-'.waImage[data-row="'+index+'"]:checked'
-);
+  let file = dataURLtoFile(imgSrc,"image.jpg");
 
-if(!selected.length){
-
-alert("اختر صورة");
-
-return;
-
-}
-
-let imgSrc =
-selected[0]
-.getAttribute("data-img");
-
-function dataURLtoFile(dataurl, filename){
-
-let arr = dataurl.split(',');
-
-let mime =
-arr[0].match(/:(.*?);/)[1];
-
-let bstr =
-atob(arr[1]);
-
-let n =
-bstr.length;
-
-let u8arr =
-new Uint8Array(n);
-
-while(n--){
-
-u8arr[n] =
-bstr.charCodeAt(n);
-
-}
-
-return new File(
-[u8arr],
-filename,
-{type:mime}
-);
-
-}
-
-let file =
-dataURLtoFile(
-imgSrc,
-"image.jpg"
-);
-
-try{
-
-if(
-navigator.canShare &&
-navigator.canShare({
-files:[file]
-})
-){
-
-await navigator.share({
-
-files:[file],
-text:text
-
-});
-
-}else{
-
-window.open(
-"https://wa.me/?text=" +
-encodeURIComponent(text),
-"_blank"
-);
-
-}
-
-}catch(e){
-
-alert("فشل الإرسال");
-
-}
-
+  try{
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({
+        files:[file],
+        text:text
+      });
+    }else{
+      window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
+    }
+  }catch(e){
+    alert("فشل الإرسال");
+  }
 }
 
 async function exportExcel(){
+  let data = filteredExportData;
 
-let tx =
-db.transaction(
-"records",
-"readonly"
-);
+  if(!data.length){
+    alert("لا توجد بيانات");
+    return;
+  }
 
-let store =
-tx.objectStore("records");
+  let workbook = new ExcelJS.Workbook();
+  let sheet = workbook.addWorksheet("البيانات");
 
-let getAll =
-store.getAll();
+  let currentRow = 1;
 
-getAll.onsuccess =
-async function(){
+  for(let r=0;r<data.length;r++){
+    let rowData = data[r];
 
-let data =
-getAll.result;
+    sheet.mergeCells(`A${currentRow}:F${currentRow}`);
 
-if(!data.length){
+    let title = sheet.getCell(`A${currentRow}`);
+    title.value = rowData["اسم الموقع"] || "بدون اسم";
+    title.font = {bold:true,size:18,color:{argb:"FFFFFF"}};
+    title.fill = {type:"pattern",pattern:"solid",fgColor:{argb:"673AB7"}};
+    title.alignment = {horizontal:"center"};
 
-alert("لا توجد بيانات");
+    currentRow++;
 
-return;
+    let headers = [];
 
-}
+    Object.keys(rowData).forEach(k=>{
+      if(k !== "id" && !k.includes(" صورة ")){
+        headers.push(k);
+      }
+    });
 
-let workbook =
-new ExcelJS.Workbook();
+    sheet.addRow(headers);
 
-let sheet =
-workbook.addWorksheet(
-"البيانات"
-);
+    headers.forEach((h,i)=>{
+      let cell = sheet.getCell(currentRow,i+1);
+      cell.font = {bold:true,color:{argb:"FFFFFF"}};
+      cell.fill = {type:"pattern",pattern:"solid",fgColor:{argb:"7E57C2"}};
+      cell.alignment = {horizontal:"center"};
+    });
 
-let currentRow = 1;
+    currentRow++;
 
-for(let r=0;r<data.length;r++){
+    let values = [];
 
-let rowData =
-data[r];
+    headers.forEach(h=>{
+      values.push(rowData[h] || "");
+    });
 
-// عنوان الموقع
+    let row = sheet.addRow(values);
+    row.height = 220;
 
-sheet.mergeCells(
-`A${currentRow}:F${currentRow}`
-);
+    for(let c=0;c<headers.length;c++){
+      let key = headers[c];
+      let images = [];
 
-let title =
-sheet.getCell(
-`A${currentRow}`
-);
+      Object.keys(rowData).forEach(imgKey=>{
+        if(imgKey.startsWith(key + " صورة")){
+          images.push(rowData[imgKey]);
+        }
+      });
 
-title.value =
-rowData["اسم الموقع"];
+      images.slice(0,4).forEach((img,index)=>{
+        let extension = img.includes("png") ? "png" : "jpeg";
 
-title.font = {
-bold:true,
-size:18,
-color:{argb:"FFFFFF"}
-};
+        let imageId = workbook.addImage({
+          base64:img,
+          extension:extension
+        });
 
-title.fill = {
-type:"pattern",
-pattern:"solid",
-fgColor:{argb:"673AB7"}
-};
+        let colOffset = (index % 2) * 0.45;
+        let rowOffset = (index >= 2 ? 0.45 : 0);
 
-currentRow++;
+        sheet.addImage(imageId,{
+          tl:{
+            col:c + colOffset + 0.1,
+            row:currentRow - 0.9 + rowOffset
+          },
+          ext:{
+            width:70,
+            height:70
+          }
+        });
+      });
+    }
 
-// العناوين
+    currentRow += 4;
+  }
 
-let headers = [];
+  sheet.columns.forEach(col=>{
+    col.width = 30;
+  });
 
-Object.keys(rowData).forEach(k=>{
+  let buffer = await workbook.xlsx.writeBuffer();
 
-if(
-k != "id"
-&&
-!k.includes(" صورة ")
-){
-
-headers.push(k);
-
-}
-
-});
-
-sheet.addRow(headers);
-
-headers.forEach((h,i)=>{
-
-let cell =
-sheet.getCell(
-currentRow,
-i+1
-);
-
-cell.font = {
-bold:true,
-color:{argb:"FFFFFF"}
-};
-
-cell.fill = {
-type:"pattern",
-pattern:"solid",
-fgColor:{argb:"7E57C2"}
-};
-
-});
-
-currentRow++;
-
-// البيانات
-
-let values = [];
-
-headers.forEach(h=>{
-
-values.push(
-rowData[h] || ""
-);
-
-});
-
-let row =
-sheet.addRow(values);
-
-row.height = 220;
-
-// الصور داخل نفس الخلية
-
-for(let c=0;c<headers.length;c++){
-
-let key =
-headers[c];
-
-let images = [];
-
-Object.keys(rowData).forEach(imgKey=>{
-
-if(
-imgKey.startsWith(
-key + " صورة"
-)
-){
-
-images.push(
-rowData[imgKey]
-);
-
-}
-
-});
-
-images
-.slice(0,4)
-.forEach((img,index)=>{
-
-let extension =
-img.includes("png")
-? "png"
-: "jpeg";
-
-let imageId =
-workbook.addImage({
-
-base64:img,
-extension:extension
-
-});
-
-let colOffset =
-(index % 2) * 0.45;
-
-let rowOffset =
-(index >= 2 ? 0.45 : 0);
-
-sheet.addImage(
-
-imageId,
-
-{
-tl:{
-col:c + colOffset + 0.1,
-row:currentRow - 0.9 + rowOffset
-},
-
-ext:{
-width:70,
-height:70
-}
-
-}
-
-);
-
-});
-
-}
-
-currentRow += 4;
-
-}
-
-sheet.columns.forEach(col=>{
-
-col.width = 30;
-
-});
-
-let buffer =
-await workbook.xlsx.writeBuffer();
-
-saveAs(
-
-new Blob([buffer]),
-
-"البيانات.xlsx"
-
-);
-
-};
-
+  saveAs(new Blob([buffer]),"البيانات.xlsx");
 }
 
 </script>
 
 </body>
-
 </html>
