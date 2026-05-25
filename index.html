@@ -82,15 +82,12 @@ border: 2px solid #166534 !important;
 
 th { background: #166534 !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-size: 14px !important; padding: 8px !important; word-wrap: break-word !important; }
 td { padding: 8px !important; font-size: 13px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; word-break: break-word !important; }
-.imageCell { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 15px !important; padding: 10px !important; }
-.imageCell img { width: 100% !important; height: auto !important; max-height: 180px !important; object-fit: contain !important; page-break-inside: avoid !important; break-inside: avoid !important; }
-.imageCell > div:nth-child(odd) img { border: 4px solid #ffffff !important; outline: 2px solid #000 !important; }
-.imageCell > div:nth-child(even) img { border: 4px solid #000000 !important; outline: 2px solid #fff !important; }
+/* Dynamic field images removed */
 tr { page-break-inside: avoid !important; break-inside: avoid !important; }
 td, th { page-break-inside: avoid !important; break-inside: avoid !important; }
 input[type="checkbox"] { display: none !important; }
 .imageCell label { display: none !important; }
-.site-images-row label { display: block !important; font-size: 12px !important; color: #166534 !important; margin-top: 5px !important; }
+.site-images-row label { display: none !important; }
 
 /* Site images row in print - full content visible */
 td[colspan] { background: #f0fdf4 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 15px !important; }
@@ -245,35 +242,8 @@ field.className = "card dynamicField";
 field.innerHTML = `
 <input type="text" class="fieldName" placeholder="اكتب اسم العمود"><br><br>
 <input type="text" class="fieldValue" placeholder="اكتب القيمة">
-<button type="button" class="addImgBtn">+ إضافة صور</button>
-<div class="previewGrid"></div>
 `;
 lastGroup.appendChild(field);
-let btn = field.querySelector(".addImgBtn");
-btn.onclick = function() {
-let grid = field.querySelector(".previewGrid");
-if (grid.querySelectorAll(".preview").length >= 4) {
-alert("الحد الأقصى 4 صور");
-return;
-}
-let box = document.createElement("div");
-box.innerHTML = `
-<input type="file" accept="image/*" class="imgInput">
-<img class="preview">
-`;
-grid.appendChild(box);
-let input = box.querySelector(".imgInput");
-let img = box.querySelector(".preview");
-input.onchange = function(e) {
-let file = e.target.files[0];
-if (!file) return;
-let reader = new FileReader();
-reader.onload = function(ev) {
-img.src = ev.target.result;
-};
-reader.readAsDataURL(file);
-};
-};
 }
 
 function sendData() {
@@ -299,12 +269,6 @@ fields.forEach(field => {
 let name = field.querySelector(".fieldName").value || "بدون اسم";
 let value = field.querySelector(".fieldValue").value;
 row[name] = value;
-let previews = field.querySelectorAll(".preview");
-previews.forEach((img, i) => {
-if (img.src) {
-row[name + " صورة " + (i + 1)] = img.src;
-}
-});
 });
 store.add(row);
 });
@@ -369,28 +333,7 @@ Object.keys(row).forEach(k => {
 if (k != "id" && !k.includes(" صورة ") && !k.startsWith("صور الموقع")) {
 let td = document.createElement("td");
 td.innerHTML = `<div style="word-break:break-word;overflow-wrap:break-word;">${row[k] || ""}</div>`;
-let imgs = [];
-Object.keys(row).forEach(imgKey => {
-if (imgKey.startsWith(k + " صورة")) {
-imgs.push(row[imgKey]);
-}
-});
-if (imgs.length) {
-let box = document.createElement("div");
-box.className = "imageCell";
-imgs.forEach(img => {
-box.innerHTML += `
-<div>
-<img src="${img}">
-<label>
-<input type="checkbox" class="waImage" data-row="${rowIndex}" data-img="${img}" checked>
-إرسال
-</label>
-</div>
-`;
-});
-td.appendChild(box);
-}
+// Dynamic field images removed - only site images are used
 tr2.appendChild(td);
 }
 });
@@ -744,4 +687,4 @@ saveAs(new Blob([buffer]), "البيانات.xlsx");
 }
 </script>
 </body>
-</html
+</html>
